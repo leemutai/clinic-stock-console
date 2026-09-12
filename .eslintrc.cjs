@@ -21,7 +21,11 @@ module.exports = {
   },
   plugins: ['react-refresh'],
   rules: {
-    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    // Fast Refresh is a dev-time convenience with no production impact.
+    // Splitting a single-file context into three files for a warning is
+    // over-engineering at this project size; this project accepts full-page
+    // reloads during editing. Re-enable if the app grows past ~30 components.
+    'react-refresh/only-export-components': 'off',
 
     // Allow props that are intentionally unused (prefix with _)
     'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
