@@ -531,3 +531,140 @@ a:hover {
   padding: 0 var(--spacing-1);
   color: var(--color-text-light);
 }
+
+/* Product detail page */
+.product-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.product-detail__breadcrumb a {
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+}
+
+.product-detail__main {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+  gap: var(--spacing-6);
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+}
+
+@media (max-width: 800px) {
+  .product-detail__main {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-4);
+  }
+}
+
+.product-detail__image-wrapper {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+}
+
+.product-detail__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.product-detail__category {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.product-detail__title {
+  font-size: var(--font-size-2xl);
+  line-height: 1.2;
+  margin: var(--spacing-1) 0;
+}
+
+.product-detail__brand {
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+}
+
+.product-detail__description {
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.product-detail__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.product-detail__meta dt {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.product-detail__meta dd {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  margin-top: var(--spacing-1);
+}
+
+.stock-badge--lg {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-lg);
+  gap: var(--spacing-2);
+}
+
+.stock-badge--lg .stock-badge__label {
+  font-size: var(--font-size-sm);
+}
+
+.stock-badge--lg .stock-badge__value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+/* Stock update form */
+.stock-form {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.stock-form__heading {
+  font-size: var(--font-size-lg);
+}
+
+.stock-form__actions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.form-success {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
