@@ -296,3 +296,67 @@ A deliberately malformed commit (`"bad message"`) was rejected locally by commit
 
 ## Section 4  Reflection
 
+### AI usage by section
+
+**Section 1 — Design.**
+I wrote the initial design myself, then used DeepSeek and ChatGPT to pressure-test the structure. I kept my original framing for components, state ownership, and the URL-as-source-of-truth decision, and adopted a few refinements — most notably the argument around DummyJSON's non-persistent PUT and the search-versus-category precedence rule. The decision log entries were written by me; AI helped me sharpen the "why" of two of them.
+
+**Section 2 — Implementation.**
+Most of the scaffolding (folder layout, config files, an initial draft of `useProducts`) was generated from my specification and then reviewed line by line. My work in this section was:
+
+- running every command and reading the output, not accepting "done" blindly
+- catching the `react-refresh/only-export-components` warning and choosing to disable it with a documented justification rather than restructure the context folder
+- writing and running the six tests myself
+- rejecting an AI-suggested currency change and local image swap after re-reading the brief's instruction not to invent clinical content
+
+**Section 3 — Deployment.**
+I drafted the initial pipeline config with AI assistance, refined it, and set up Vercel and the GitHub integration personally. The deliberate PR #1 test — breaking formatting on a throwaway branch to confirm the pipeline actually fails — was my execution and my choice.
+
+**Section 4 — Reflection.**
+This section is my own writing. I used AI to tighten phrasing, not to generate content.
+
+### Tools and workflow
+
+I used VS Code, Git and GitHub (with GitHub Actions), Vercel for hosting, DeepSeek and ChatGPT for assistance, and DummyJSON as the mock backend.
+
+I did not use a spec-driven framework such as Spec Kit, GSD, or BMAD. My workflow was conversational and step-by-step: define the design, plan one vertical slice at a time, implement it, verify it locally, run the toolchain (format, lint, test), commit with a conventional message, and move to the next slice. Each commit corresponds to one completed and verified piece of work. AI was used as a technical collaborator within that loop, not as a scaffolder I handed the brief to.
+
+### Where AI improved the work
+
+The clearest example is DummyJSON's non-persistent `PUT /products/:id`. The endpoint returns the updated object but does not persist the change — a subsequent `GET` returns the original stock. Had we refetched after a successful save (the standard optimistic-update pattern), the user's correction would visibly revert a moment after they clicked Save.
+
+The prompt that surfaced this was roughly: *"Walk me through what happens to the stock correction UI between the click and the response, assuming patchy Wi-Fi and DummyJSON's documented behaviour."* The answer identified the persistence gap, which became Decision 3 in the README and directly shaped the mutation's success handler.
+
+This is a design-level catch. It would have shipped as a plausible-looking bug in production and taken much longer to diagnose than to avoid.
+
+### Where AI output was wrong or incomplete
+
+The `react-refresh/only-export-components` warning in Step 5. AI suggested splitting `useAuth` out of `AuthContext.jsx` into `hooks/useAuth.js`, and stated that this would resolve the warning. It did not — the rule also flags `createContext()` calls, not only hooks. I caught it by running `npm run lint` immediately after the change and seeing the same warning on the context file.
+
+I fixed it by disabling the rule with a written justification in `.eslintrc.cjs`, and by choosing to accept the tradeoff (full-page reloads on context edits instead of Fast Refresh) rather than fragmenting the context folder into three files for a dev-time convenience.
+
+The lesson: AI output needs to be verified against the same standards you'd apply to a colleague's suggestion. "This will fix it" is a claim, and claims should be checked.
+
+### Two decisions made without AI
+
+**1. JavaScript over TypeScript.**
+I made this call before we started implementation. I have deeper working experience with JavaScript, and within a limited assessment window I would rather spend my time on the parts of this brief that are genuinely hard — request cancellation, optimistic rollback, token refresh coordination — than on type plumbing. A smaller submission I fully understand is worth more than a larger one I cannot defend under questioning.
+
+**2. URL state as the source of truth.**
+This was in my original Section 1 design, written before any AI input. Requirements #3 (refresh preserves state) and the "shared link over chat" scenario make the URL the only honest home for search, filter, sort, and page. Storing them in Context would have required code to sync two sources of truth and would have failed the copy-paste case outright.
+
+A third, smaller one: I rejected an AI-suggested change to Kenyan Shillings and local images after re-reading the brief. The instruction not to invent clinical content is explicit, and rewriting retail product titles while keeping their thumbnails would have created a mismatch — a mascara bottle labelled as surgical gloves. Framing the catalogue as clinic stock at the UI layer is honest; renaming the records would not have been.
+
+### Where my understanding is thinnest
+
+The token refresh queue in `src/api/client.js`. It works, and the observable behaviour has been verified — signing in, waiting past the 1-minute token lifetime, and continuing to use the app triggers one refresh and replays the failed request. But the coordination between `isRefreshing`, the `waiters` array, and the interceptor's re-entry guard is the densest concurrency logic in the codebase. If a reviewer asked me to trace what happens when the refresh request itself returns 401, I could give the answer (the waiters are rejected, tokens are cleared, and the app redirects to login once), but I would want to open the file and walk through it rather than describe it from memory.
+
+If I had more time, I would either write a test that fires multiple concurrent 401s and asserts that only one refresh request is made, or replace the queue with a smaller explicit state machine that is easier to reason about at a glance.
+
+### Real time spent
+Approximately 12 hours across three days, at an average of four hours per day. Roughly:
+- Section 1 design and planning: ~2 hours
+- Implementation and testing: ~7 hours
+- Deployment, CI/CD, and verification: ~2 hours
+- Section 4 reflection and final review: ~1 hour
+
